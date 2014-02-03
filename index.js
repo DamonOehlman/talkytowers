@@ -21,9 +21,23 @@ shell.once('init', function() {
   // create our avatar
   signaller.on('peer:announce', createAvatar);
 
-  // on change, send info through the data channel
-  avatar.on('change', function() {
-    console.log('avatar changed');
+  signaller.createDataChannel(avatar.building.name);
+
+  signaller.on(avatar.building.name+':open', function(dc, id) {
+
+    dc.send(buildWireAvatar(avatar, 'connect'));
+
+    avatar.on('change', function() {
+      dc.send(buildWireAvatar(avatar))
+    });
+
+    dc.onmessage = function(evt) {
+      var data = JSON.parse(evt.data);
+      console.log('recieved event', data);
+      if (data.event == 'connect') {
+        // Totally draw an avatar on the screen now.
+      }
+    }
   });
 });
 
@@ -41,3 +55,13 @@ shell.on('tick', function() {
 });
 
 // create the tower
+
+buildWireAvatar = function(avatar, type) {
+  var event = type || 'move'
+  return JSON.stringify({
+    event: event,
+    x: avatar.x,
+    y: avatar.y,
+    name: avatar.name
+  });
+};
