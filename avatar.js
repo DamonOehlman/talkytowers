@@ -1,5 +1,6 @@
 var crel = require('crel');
 var events = require('events');
+var transform = require('feature/css')('transform');
 var util = require('util');
 var flip = require('./flip');
 var sprite = require('./sprite');
@@ -23,7 +24,10 @@ function Avatar(tower) {
 
   //
   this._timer = 0;
+  this._ymove = 0;
+  this.tower = tower;
 
+  this.frameIndex = 0;
   this.walkRightFrames = sprite('assets/walk/p1_walk{{ 0 }}.png', 11);
   this.walkLeftFrames = this.walkRightFrames.map(flip.x);
 
@@ -44,27 +48,47 @@ module.exports = Avatar;
 var proto = Avatar.prototype;
 
 proto.moveLeft = function() {
-  this.x -= 1;
-  this._changed(-1);
+  this.moveX(-1);
 };
 
 proto.moveRight = function() {
-  this.x += 1;
-  this._changed(1);
+  this.moveX(1);
 };
 
 proto.moveUp = function() {
-  this.y += 1;
-  this._changed();
+  this.moveY(1);
 };
 
 proto.moveDown = function() {
-  this.y -= 1;
-  this._changed();
+  if (this.y >= 0) {
+    this.moveY(-1);
+  }
 };
 
-proto._changed = function() {
+proto.moveX = function(delta) {
+  this.x += delta;
+  transform(this.canvas, 'translate(' + this.x + 'px, 0px)');
+  this._changed(delta);
+}
+
+proto.moveY = function(delta) {
   var avatar = this;
+
+  clearTimeout(this._ymove);
+  this._ymove = setTimeout(function() {
+    avatar.y += delta;
+    avatar._changeLevel();
+    avatar._changed();
+  }, 50);
+}
+
+proto._changed = function(frameChange) {
+  var avatar = this;
+
+  if (frameChange) {
+    this.frameIndex = (this.frameIndex + frameChange) % this.walkRightFrames.length;
+    this._draw();
+  }
 
   clearTimeout(this._timer);
   this._timer = setTimeout(function() {
@@ -72,8 +96,19 @@ proto._changed = function() {
   }, 0);
 };
 
+proto._changeLevel = function() {
+  if (this.canvas.parentNode) {
+    this.canvas.parentNode.removeChild(this.canvas);
+  }
+
+  // add ourselves to the tower
+  this.tower.floors[this.y].appendChild(this.canvas);
+};
+
 proto._draw = function() {
-  var frame = this.walkRightFrames[0];
+  console.log(this.frameIndex);
+  var frames = this.walkRightFrames; // this.frameIndex >= 0 ? this.walkRightFrames : this.walkLeftFrames;
+  var frame = frames[Math.abs(this.frameIndex)];
   var offsetX;
   var offsetY;
 
@@ -84,5 +119,6 @@ proto._draw = function() {
   offsetX = (this.canvas.width - frame.width) >> 1;
   offsetY = this.canvas.height - frame.height;
 
+  this.context.clearRect(0, 0, 100, 100);
   this.context.drawImage(frame, offsetX, offsetY);
 };

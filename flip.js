@@ -10,10 +10,19 @@ function flipImage(img, flipH, flipV) {
   canvas.height = img.height;
 
   var ctx = canvas.getContext('2d');
+
+  if (img.width === 0 || img.height === 0) {
+    img.addEventListener('load', function() {
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      ctx.save();
+      ctx.scale(scaleH, scaleV); // Set scale to flip the image
+      ctx.drawImage(img, posX, posY, img.width, img.height); // draw the image
+      ctx.restore(); // Restore the last saved state
+    });
+  }
   
-  ctx.scale(scaleH, scaleV); // Set scale to flip the image
-  ctx.drawImage(img, posX, posY, img.width, img.height); // draw the image
-  ctx.restore(); // Restore the last saved state
 
   return canvas;  
 }
