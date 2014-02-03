@@ -91,11 +91,11 @@ shell.once('init', function() {
         peers[id].name = data.name;
       }
 
-      if (typeof data.x) {
+      if (typeof data.x != 'undefined') {
         peers[id].x = data.x;
       }
 
-      if (data.y) {
+      if (typeof data.y != 'undefined') {
         peers[id].y = data.y;
       }
       if (data.event == 'bell' && data.y === avatar.y) {
