@@ -22,7 +22,7 @@ shell.once('init', function() {
   document.body.style.overflow = 'auto';
 
   // join the signaller
-  signaller = qc(SIGSRV, { ns: 'talkytower', debug: true });
+  signaller = qc(SIGSRV, { ns: 'talkytower' });
 
   // create our avatar
   signaller.on('peer:announce', createAvatar);
