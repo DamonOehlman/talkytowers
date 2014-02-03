@@ -58,8 +58,9 @@ shell.once('init', function() {
           avatar.floorChannel.leave();
         }
 
-        // if we've got an existing signaller, close
+        // create join the room channel (cloning our signaller id)
         avatar.floorChannel = qc(SIGSRV, {
+          id: signaller.id + ':video',
           room: avatar.building.name+'_'+avatar.y
         });
 
@@ -68,8 +69,8 @@ shell.once('init', function() {
 
         //Look at our friend's faces
         avatar.floorChannel.on('peer:connect', function(pc, id, data) {
-          if (pc.getRemoteStreams().length > 0) {
-            media(pc.getRemoteStreams()[0]).render(peers[Object.keys(peers)[0]].video);
+          if (peers[id] && pc.getRemoteStreams().length > 0) {
+            media(pc.getRemoteStreams()[0]).render(peers[id].video);
           }
         });
 
