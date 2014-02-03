@@ -31,7 +31,10 @@ shell.once('init', function() {
 
     dc.send(buildWireAvatar(avatar, 'connect'));
 
+    var lastPos = {}
     avatar.on('change', function() {
+      if (avatar.x === lastPos.x && avatar.y === lastPos.y) return;
+      lastPos = {x: avatar.x, y: avatar.y};
       dc.send(buildWireAvatar(avatar))
     });
 
