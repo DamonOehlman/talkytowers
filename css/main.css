@@ -1,0 +1,45 @@
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+
+	background-color: #0088FF;
+}
+
+header {
+	margin-top: 20px;
+	margin-bottom: 40px;
+}
+
+	header h1 {
+		width: 760px;
+		margin: auto;
+
+		font-family: superscript;
+		font-size: 60px;
+		text-align: center;
+
+		color: white;
+	}
+
+.tower {
+	width: 760px;
+	margin: auto;
+}
+
+	.tower .level {
+		height: 200px;
+
+		font-family: superscript;
+		font-size: 30px;
+
+		background: #AAA;
+		border: solid 10px black;
+		border-bottom: none;
+	}
+
+		.tower .level h1 {
+			padding: 20px;
+		}
