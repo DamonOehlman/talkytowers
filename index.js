@@ -5,7 +5,7 @@ var crel = require('crel');
 var shell = require('game-shell')();
 var qc = require('rtc-quickconnect');
 var media = require('rtc-media');
-var signaller;
+var signaller, dataChannel;
 var peers = {};
 var avatar = new Avatar(tower);
 
@@ -38,6 +38,8 @@ shell.once('init', function() {
   signaller.on(avatar.building.name+':open', function(dc, id) {
 
     dc.send(buildWireAvatar(avatar, 'connect'));
+
+    dataChannel = dc;
 
     var lastPos = {}
     avatar.on('change', function() {
@@ -90,6 +92,9 @@ shell.once('init', function() {
       if (data.y) {
         peers[id].y = data.y;
       }
+      if (data.event == 'bell' && data.y === avatar.y) {
+        document.getElementById('bellSound').play();
+      }
     }
   });
 });
@@ -100,6 +105,7 @@ shell.bind('moveUp', 'up', 'W');
 shell.bind('moveDown', 'down', 'S');
 
 shell.on('tick', function() {
+  if (shell.wasDown('B')) sendBell();
   actions.forEach(function(action) {
     if (shell.wasDown(action)) {
       avatar[action].call(avatar);
@@ -119,4 +125,8 @@ var buildWireAvatar = function(avatar, type) {
   });
 };
 
+var sendBell = function() {
+  dataChannel.send(buildWireAvatar(avatar, 'bell'));
+};
+-
 window.addEventListener('load', tower.init);
