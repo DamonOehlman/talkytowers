@@ -1,0 +1,29 @@
+{
+  "name": "talkytowers",
+  "version": "0.0.0",
+  "description": "8-bit video conferencing for virtual environments",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DamonOehlman/talkytowers.git"
+  },
+  "keywords": [
+    "webrtc",
+    "video",
+    "conferencing",
+    "virtual",
+    "environment"
+  ],
+  "author": "Damon Oehlman <damon.oehlman@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DamonOehlman/talkytowers/issues"
+  },
+  "homepage": "https://github.com/DamonOehlman/talkytowers",
+  "devDependencies": {
+    "browserify": "~3.24.10"
+  }
+}
