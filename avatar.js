@@ -10,6 +10,14 @@ function Avatar() {
   this.y = 0;
   this.x = 0;
 
+  this.building = {
+    name: 'building1'
+  }
+
+  this.name = localStorage.username || window.prompt("What is your name?");
+
+  localStorage.username = this.name
+
   //
   this._timer = 0;
 }
