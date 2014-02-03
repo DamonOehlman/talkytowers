@@ -14,6 +14,9 @@ var SIGSRV = 'http://rtc.io/switchboard/';
 // capture local media
 var localStream = media();
 
+// render the video
+localStream.render(avatar.video);
+
 function createAvatar(data) {
 }
 
@@ -65,7 +68,9 @@ shell.once('init', function() {
 
         //Look at our friend's faces
         avatar.floorChannel.on('peer:connect', function(pc, id, data) {
-          console.log('peerconnect from', id);
+          if (pc.getRemoteStreams().length > 0) {
+            media(pc.getRemoteStreams()[0]).render(peers[Object.keys(peers)[0]].video);
+          }
         });
 
       }

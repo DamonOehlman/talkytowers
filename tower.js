@@ -1,7 +1,7 @@
 var crel = require('crel');
 var tower = module.exports = crel('article', { class: 'tower' });
 var floors = tower.floors = [];
-var FLOOR_COUNT = 100;
+var FLOOR_COUNT = 5;
 
 // create the floors
 for (var ii = FLOOR_COUNT; ii--; ) {

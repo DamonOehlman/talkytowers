@@ -43,10 +43,6 @@ header h1 {
 	padding: 20px;
 }
 
-canvas.sprite {
-
-}
-
-canvas.sprite::after {
-	content: 'Bob';
+.avatar {
+	position: absolute;
 }

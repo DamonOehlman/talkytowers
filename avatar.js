@@ -27,16 +27,22 @@ function Avatar(tower) {
   this.walkRightFrames = sprite('assets/walk/p1_walk{{ 0 }}.png', 11);
   this.walkLeftFrames = this.walkRightFrames.map(flip.x);
 
+  this.el = crel('div', { class: 'avatar' });
+
   // create a canvas
   this.canvas = crel('canvas', { class: 'sprite', width: 100, height: 100 });
   this.context = this.canvas.getContext('2d');
+  this.el.appendChild(this.canvas);
+
+  // create a small video tag for the person
+  this.video = crel('video', { width: 120, height: 90 });
+  this.el.appendChild(this.video);
 
   // initialise the name
   this.name = localStorage.username || window.prompt("What is your name?");
 
-
   // add ourselves to the tower
-  tower.floors[this.y].appendChild(this.canvas);
+  tower.floors[this.y].appendChild(this.el);
 
   // draw frame
   this._draw();
@@ -73,7 +79,7 @@ Object.defineProperty(proto, 'x', {
       var delta = value - this._x;
 
       this._x = value;
-      transform(this.canvas, 'translate(' + value + 'px, 0px)');
+      transform(this.el, 'translate(' + value + 'px, 0px)');
       this._changed(delta);
     }
   }
@@ -123,8 +129,8 @@ proto.moveY = function(delta) {
 }
 
 proto.remove = function() {
-  if (this.canvas.parentNode) {
-    this.canvas.parentNode.removeChild(this.canvas);
+  if (this.el.parentNode) {
+    this.el.parentNode.removeChild(this.el);
   }
 };
 
@@ -146,7 +152,7 @@ proto._changeLevel = function() {
   this.remove();
   
   // add ourselves to the tower
-  this.tower.floors[this.y].appendChild(this.canvas);
+  this.tower.floors[this.y].appendChild(this.el);
 };
 
 proto._draw = function() {
