@@ -42,3 +42,11 @@ header h1 {
 .tower .level h1 {
 	padding: 20px;
 }
+
+canvas.sprite {
+
+}
+
+canvas.sprite::after {
+	content: 'Bob';
+}

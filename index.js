@@ -26,6 +26,12 @@ shell.once('init', function() {
 
   // create our avatar
   signaller.on('peer:announce', createAvatar);
+  signaller.on('peer:leave', function(id) {
+    console.log('peer ' + id + ' left');
+    if (peers[id]) {
+      peers[id].remove();
+    }
+  });
 
   signaller.createDataChannel(avatar.building.name);
 
@@ -40,8 +46,17 @@ shell.once('init', function() {
       if (avatar.y !== lastPos.y) {
         //We've moved floors.
         //Connect to the media stream associated with our new floor.
+        console.log('changed floors');
 
-        avatar.floorChannel = qc(SIGSRV, { room: avatar.building.name+'_'+avatar.y });
+        // if we are already have a channel, leave that floor
+        if (avatar.floorChannel) {
+          avatar.floorChannel.leave();
+        }
+
+        // if we've got an existing signaller, close
+        avatar.floorChannel = qc(SIGSRV, {
+          room: avatar.building.name+'_'+avatar.y
+        });
 
         //Broadcast our media to our new friends
         if (localStream.stream !== null) avatar.floorChannel.broadcast(localStream.stream);
@@ -64,6 +79,16 @@ shell.once('init', function() {
       console.log('recieved event', data);
       if (data.event == 'connect') {
         // Totally draw an avatar on the screen now.
+        peers[id] = new Avatar(tower);
+        peers[id].name = data.name;
+      }
+
+      if (typeof data.x) {
+        peers[id].x = data.x;
+      }
+
+      if (data.y) {
+        peers[id].y = data.y;
       }
     }
   });

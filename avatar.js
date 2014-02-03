@@ -11,16 +11,12 @@ function Avatar(tower) {
   }
 
   // initialise the level
-  this.y = 0;
-  this.x = 0;
+  this._y = 0;
+  this._x = 0;
 
   this.building = {
     name: 'building1'
   }
-
-  this.name = localStorage.username || window.prompt("What is your name?");
-
-  localStorage.username = this.name
 
   //
   this._timer = 0;
@@ -32,8 +28,12 @@ function Avatar(tower) {
   this.walkLeftFrames = this.walkRightFrames.map(flip.x);
 
   // create a canvas
-  this.canvas = crel('canvas', { width: 100, height: 100 });
+  this.canvas = crel('canvas', { class: 'sprite', width: 100, height: 100 });
   this.context = this.canvas.getContext('2d');
+
+  // initialise the name
+  this.name = localStorage.username || window.prompt("What is your name?");
+
 
   // add ourselves to the tower
   tower.floors[this.y].appendChild(this.canvas);
@@ -46,6 +46,52 @@ util.inherits(Avatar, events.EventEmitter);
 module.exports = Avatar;
 
 var proto = Avatar.prototype;
+
+Object.defineProperty(proto, 'name', {
+  get: function() {
+    return this._name;
+  },
+
+  set: function(value) {
+    if (value !== this._name) {
+      localStorage.username = this._name;
+
+      if (this.canvas) {
+        this.canvas.setAttribute('data-name', value);
+      }
+    }
+  }
+});
+
+Object.defineProperty(proto, 'x', {
+  get: function() {
+    return this._x;
+  },
+
+  set: function(value) {
+    if (value !== this._x) {
+      var delta = value - this._x;
+
+      this._x = value;
+      transform(this.canvas, 'translate(' + value + 'px, 0px)');
+      this._changed(delta);
+    }
+  }
+})
+
+Object.defineProperty(proto, 'y', {
+  get: function() {
+    return this._y;
+  },
+
+  set: function(value) {
+    if (value !== this._y) {
+      this._y = value;
+      this._changeLevel();
+      this._changed();
+    }
+  }
+});
 
 proto.moveLeft = function() {
   this.moveX(-1);
@@ -60,15 +106,11 @@ proto.moveUp = function() {
 };
 
 proto.moveDown = function() {
-  if (this.y >= 0) {
-    this.moveY(-1);
-  }
+  this.moveY(-1);
 };
 
 proto.moveX = function(delta) {
   this.x += delta;
-  transform(this.canvas, 'translate(' + this.x + 'px, 0px)');
-  this._changed(delta);
 }
 
 proto.moveY = function(delta) {
@@ -77,10 +119,14 @@ proto.moveY = function(delta) {
   clearTimeout(this._ymove);
   this._ymove = setTimeout(function() {
     avatar.y += delta;
-    avatar._changeLevel();
-    avatar._changed();
   }, 50);
 }
+
+proto.remove = function() {
+  if (this.canvas.parentNode) {
+    this.canvas.parentNode.removeChild(this.canvas);
+  }
+};
 
 proto._changed = function(frameChange) {
   var avatar = this;
@@ -97,16 +143,13 @@ proto._changed = function(frameChange) {
 };
 
 proto._changeLevel = function() {
-  if (this.canvas.parentNode) {
-    this.canvas.parentNode.removeChild(this.canvas);
-  }
-
+  this.remove();
+  
   // add ourselves to the tower
   this.tower.floors[this.y].appendChild(this.canvas);
 };
 
 proto._draw = function() {
-  console.log(this.frameIndex);
   var frames = this.walkRightFrames; // this.frameIndex >= 0 ? this.walkRightFrames : this.walkLeftFrames;
   var frame = frames[Math.abs(this.frameIndex)];
   var offsetX;
