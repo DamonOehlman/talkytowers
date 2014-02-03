@@ -7,7 +7,7 @@ body {
 }
 
 header {
-
+	margin-bottom: 40px;
 }
 
 	header h1 {
@@ -18,3 +18,23 @@ header {
 		font-size: 60px;
 		text-align: center;
 	}
+
+.tower {
+	width: 760px;
+	margin: auto;
+}
+
+	.tower .level {
+		height: 200px;
+
+		font-family: superscript;
+		font-size: 30px;
+
+		background: #AAA;
+		border: solid 1px #333;
+		border-bottom: none;
+	}
+
+		.tower .level h1 {
+			padding: 20px;
+		}
