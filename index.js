@@ -63,7 +63,7 @@ shell.on('tick', function() {
 
 // create the tower
 
-buildWireAvatar = function(avatar, type) {
+var buildWireAvatar = function(avatar, type) {
   var event = type || 'move'
   return JSON.stringify({
     event: event,
