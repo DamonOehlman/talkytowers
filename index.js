@@ -44,7 +44,7 @@ shell.once('init', function() {
         avatar.floorChannel = qc(SIGSRV, { room: avatar.building.name+'_'+avatar.y });
 
         //Broadcast our media to our new friends
-        avatar.floorChannel.broadcast(localStream);
+        if (localStream.stream !== null) avatar.floorChannel.broadcast(localStream.stream);
 
         //Look at our friend's faces
         avatar.floorChannel.on('peer:connect', function(pc, id, data) {
