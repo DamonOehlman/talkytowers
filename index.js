@@ -1,4 +1,5 @@
 var Avatar = require('./avatar');
+var tower = require('./tower');
 var actions = Object.keys(Avatar.prototype);
 var crel = require('crel');
 var shell = require('game-shell')();
@@ -6,7 +7,7 @@ var qc = require('rtc-quickconnect');
 var media = require('rtc-media');
 var signaller;
 var peers = {};
-var avatar = new Avatar();
+var avatar = new Avatar(tower);
 
 // capture local media
 var localStream = media();
@@ -15,6 +16,9 @@ function createAvatar(data) {
 }
 
 shell.once('init', function() {
+  // undo game-shells style override
+  document.body.style.overflow = 'auto';
+
   // join the signaller
   signaller = qc('http://rtc.io/switchboard/', { ns: 'talkytower' });
 
@@ -65,3 +69,5 @@ buildWireAvatar = function(avatar, type) {
     name: avatar.name
   });
 };
+
+window.addEventListener('load', tower.init);

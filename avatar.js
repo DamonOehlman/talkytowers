@@ -4,9 +4,9 @@ var util = require('util');
 var flip = require('./flip');
 var sprite = require('./sprite');
 
-function Avatar() {
+function Avatar(tower) {
   if (! (this instanceof Avatar)) {
-    return new Avatar();
+    return new Avatar(tower);
   }
 
   // initialise the level
@@ -30,6 +30,12 @@ function Avatar() {
   // create a canvas
   this.canvas = crel('canvas', { width: 100, height: 100 });
   this.context = this.canvas.getContext('2d');
+
+  // add ourselves to the tower
+  tower.floors[this.y].appendChild(this.canvas);
+
+  // draw frame
+  this._draw();
 }
 
 util.inherits(Avatar, events.EventEmitter);
@@ -64,4 +70,19 @@ proto._changed = function() {
   this._timer = setTimeout(function() {
     avatar.emit('change');
   }, 0);
+};
+
+proto._draw = function() {
+  var frame = this.walkRightFrames[0];
+  var offsetX;
+  var offsetY;
+
+  if (frame.width === 0 || frame.height === 0) {
+    return frame.addEventListener('load', this._draw.bind(this));
+  }
+
+  offsetX = (this.canvas.width - frame.width) >> 1;
+  offsetY = this.canvas.height - frame.height;
+
+  this.context.drawImage(frame, offsetX, offsetY);
 };
