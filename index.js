@@ -1,10 +1,15 @@
 var Avatar = require('./avatar');
 var actions = Object.keys(Avatar.prototype);
+var crel = require('crel');
 var shell = require('game-shell')();
 var qc = require('rtc-quickconnect');
+var media = require('rtc-media');
 var signaller;
 var peers = {};
 var avatar = new Avatar();
+
+// capture local media
+var localStream = media();
 
 function createAvatar(data) {
 }
@@ -34,3 +39,5 @@ shell.on('tick', function() {
     }
   });
 });
+
+// create the tower
