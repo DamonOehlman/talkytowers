@@ -1,0 +1,20 @@
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+}
+
+header {
+
+}
+
+	header h1 {
+		width: 760px;
+		margin: auto;
+
+		font-family: superscript;
+		font-size: 60px;
+		text-align: center;
+	}
