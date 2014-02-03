@@ -48,7 +48,7 @@ shell.once('init', function() {
 
         //Look at our friend's faces
         avatar.floorChannel.on('peer:connect', function(pc, id, data) {
-          pc.getRemoteStreams().forEach(renderRemote(id));
+          console.log('peerconnect from', id);
         });
 
       }
