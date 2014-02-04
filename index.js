@@ -5,6 +5,7 @@ var crel = require('crel');
 var shell = require('game-shell')();
 var qc = require('rtc-quickconnect');
 var media = require('rtc-media');
+var qsa = require('fdom/qsa');
 var signaller, dataChannel;
 var peers = {};
 var avatar = new Avatar(tower);
@@ -15,7 +16,7 @@ var SIGSRV = 'http://rtc.io/switchboard/';
 var localStream = media();
 
 // render the video
-localStream.render(avatar.video);
+localStream.render(qsa('.localvideo')[0]);
 
 function createAvatar(data) {
 }
@@ -69,8 +70,12 @@ shell.once('init', function() {
 
         //Look at our friend's faces
         avatar.floorChannel.on('peer:connect', function(pc, id, data) {
-          if (peers[id] && pc.getRemoteStreams().length > 0) {
-            media(pc.getRemoteStreams()[0]).render(peers[id].video);
+          var coreId = id.split(':')[0];
+
+          console.log('received peer:connect for media from: ' + id);
+
+          if (peers[coreId] && pc.getRemoteStreams().length > 0) {
+            media(pc.getRemoteStreams()[0]).render(peers[coreId].video);
           }
         });
 
@@ -89,6 +94,7 @@ shell.once('init', function() {
         // Totally draw an avatar on the screen now.
         peers[id] = new Avatar(tower);
         peers[id].name = data.name;
+        peers[id].spriteIdx = data.sprite;
       }
 
       if (typeof data.x != 'undefined') {
@@ -127,7 +133,8 @@ var buildWireAvatar = function(avatar, type) {
     event: event,
     x: avatar.x,
     y: avatar.y,
-    name: avatar.name
+    name: avatar.name,
+    sprite: avatar.spriteIdx
   });
 };
 

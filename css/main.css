@@ -23,9 +23,16 @@ header h1 {
 	color: white;
 }
 
+.localVideo {
+	position: fixed;
+	height: 200px;
+	right: 10px;
+	bottom: 10px;
+}
+
 .tower {
 	width: 760px;
-	margin: auto;
+	margin: 10px auto;
 }
 
 .tower .level {
@@ -39,10 +46,14 @@ header h1 {
 	border-bottom: none;
 }
 
+.tower .level:last-child {
+	border-bottom: solid 10px black;
+}
+
 .tower .level h1 {
 	padding: 20px;
 }
 
 .avatar {
-	position: absolute;
+	/*position: absolute;*/
 }

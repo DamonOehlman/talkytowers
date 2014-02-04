@@ -2,8 +2,15 @@ var crel = require('crel');
 var events = require('events');
 var transform = require('feature/css')('transform');
 var util = require('util');
-var flip = require('./flip');
-var sprite = require('./sprite');
+var spriteLoader = require('spritey/loader')('node_modules/spritey/sprite/3', {
+  scale: 3,
+  transform: false
+});
+
+var sprites = [
+  require('spritey/sprite/firefox.json'),
+  require('spritey/sprite/goblin.json')
+].map(spriteLoader);
 
 function Avatar(tower) {
   if (! (this instanceof Avatar)) {
@@ -24,28 +31,19 @@ function Avatar(tower) {
   this.tower = tower;
 
   this.frameIndex = 0;
-  this.walkRightFrames = sprite('assets/walk/p1_walk{{ 0 }}.png', 11);
-  this.walkLeftFrames = this.walkRightFrames.map(flip.x);
 
+  this.spriteIdx = (Math.random() * sprites.length) | 0;
+  this.sprite = sprites[this.spriteIdx];
   this.el = crel('div', { class: 'avatar' });
 
   // create a canvas
-  this.canvas = crel('canvas', { class: 'sprite', width: 100, height: 100 });
-  this.context = this.canvas.getContext('2d');
-  this.el.appendChild(this.canvas);
-
-  // create a small video tag for the person
-  this.video = crel('video', { width: 120, height: 90 });
-  this.el.appendChild(this.video);
+  this.el.appendChild(this.sprite.canvas);
 
   // initialise the name
   this.name = localStorage.username || window.prompt("What is your name?");
 
   // add ourselves to the tower
   tower.floors[this.y].appendChild(this.el);
-
-  // draw frame
-  this._draw();
 }
 
 util.inherits(Avatar, events.EventEmitter);
@@ -78,9 +76,16 @@ Object.defineProperty(proto, 'x', {
     if (value !== this._x) {
       var delta = value - this._x;
 
+      if (delta > 0) {
+        this.sprite.walk_right();
+      }
+      else {
+        this.sprite.walk_left();
+      }
+
       this._x = value;
       transform(this.el, 'translate(' + value + 'px, 0px)');
-      this._changed(delta);
+      this._changed();
     }
   }
 })
@@ -92,6 +97,13 @@ Object.defineProperty(proto, 'y', {
 
   set: function(value) {
     if (value !== this._y) {
+      if (value > this._y) {
+        this.sprite.walk_up();
+      }
+      else {
+        this.sprite.walk_down();
+      }
+
       this._y = value;
       this._changeLevel();
       this._changed();
@@ -134,13 +146,8 @@ proto.remove = function() {
   }
 };
 
-proto._changed = function(frameChange) {
+proto._changed = function() {
   var avatar = this;
-
-  if (frameChange) {
-    this.frameIndex = (this.frameIndex + frameChange) % this.walkRightFrames.length;
-    this._draw();
-  }
 
   clearTimeout(this._timer);
   this._timer = setTimeout(function() {
@@ -153,21 +160,4 @@ proto._changeLevel = function() {
   
   // add ourselves to the tower
   this.tower.floors[this.y].appendChild(this.el);
-};
-
-proto._draw = function() {
-  var frames = this.walkRightFrames; // this.frameIndex >= 0 ? this.walkRightFrames : this.walkLeftFrames;
-  var frame = frames[Math.abs(this.frameIndex)];
-  var offsetX;
-  var offsetY;
-
-  if (frame.width === 0 || frame.height === 0) {
-    return frame.addEventListener('load', this._draw.bind(this));
-  }
-
-  offsetX = (this.canvas.width - frame.width) >> 1;
-  offsetY = this.canvas.height - frame.height;
-
-  this.context.clearRect(0, 0, 100, 100);
-  this.context.drawImage(frame, offsetX, offsetY);
 };
