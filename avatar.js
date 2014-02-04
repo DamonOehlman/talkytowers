@@ -19,7 +19,7 @@ function Avatar() {
 
   // initialise the level
   this._y = 0;
-  this._x = 0;
+  this._x = 20;
 
   this.building = {
     name: 'building1'

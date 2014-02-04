@@ -8,7 +8,7 @@ var media = require('rtc-media');
 var qsa = require('fdom/qsa');
 var signaller, dataChannel;
 var peers = {};
-var avatar = new Avatar(tower);
+var avatar = new Avatar();
 
 var SIGSRV = 'http://rtc.io/switchboard/';
 
@@ -92,7 +92,7 @@ shell.once('init', function() {
       console.log('recieved event', data);
       if (data.event == 'connect') {
         // Totally draw an avatar on the screen now.
-        peers[id] = new Avatar(tower);
+        peers[id] = new Avatar();
         peers[id].name = data.name;
         peers[id].spriteIdx = data.sprite;
       }
@@ -134,7 +134,7 @@ shell.on('tick', function() {
   avatar.sprite.draw(
     tower.levels[avatar.y],
     avatar.x,
-    0
+    tower.levelHeight - 50
   );
 });
 
