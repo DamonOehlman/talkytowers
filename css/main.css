@@ -5,6 +5,7 @@ html {
 body {
 	min-height: 100%;
 	background-color: #0088FF;
+	font-family: superscript;
 }
 
 header {
@@ -16,7 +17,6 @@ header h1 {
 	width: 760px;
 	margin: auto;
 
-	font-family: superscript;
 	font-size: 60px;
 	text-align: center;
 
@@ -36,9 +36,6 @@ header h1 {
 }
 
 .tower .level {
-	height: 200px;
-
-	font-family: superscript;
 	font-size: 30px;
 
 	background: #AAA;
@@ -50,8 +47,9 @@ header h1 {
 	border-bottom: solid 10px black;
 }
 
-.tower .level h1 {
+.tower .level h2 {
 	padding: 20px;
+	position: absolute;
 }
 
 .avatar {
