@@ -2,6 +2,7 @@ var crel = require('crel');
 var events = require('events');
 var transform = require('feature/css')('transform');
 var util = require('util');
+var Sprite = require('spritey/sprite');
 var spriteLoader = require('spritey/loader')('node_modules/spritey/sprite/3', {
   scale: 3,
   transform: false
@@ -9,7 +10,8 @@ var spriteLoader = require('spritey/loader')('node_modules/spritey/sprite/3', {
 
 var sprites = [
   require('spritey/sprite/firefox.json'),
-  require('spritey/sprite/goblin.json')
+  require('spritey/sprite/goblin.json'),
+  require('spritey/sprite/sword1.json')
 ].map(spriteLoader);
 
 function Avatar() {
@@ -32,7 +34,7 @@ function Avatar() {
   this.frameIndex = 0;
 
   this.spriteIdx = (Math.random() * sprites.length) | 0;
-  this.sprite = sprites[this.spriteIdx];
+  this.sprite = new Sprite([ sprites[0], sprites[2] ]);
   this.el = crel('div', { class: 'avatar' });
 
   // initialise the name
