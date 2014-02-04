@@ -5,7 +5,7 @@ var util = require('util');
 var Sprite = require('spritey/sprite');
 var spriteLoader = require('spritey/loader')('node_modules/spritey/sprite/3', {
   scale: 3,
-  transform: false
+  stance: 'walk_right'
 });
 
 var sprites = [
