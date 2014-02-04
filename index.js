@@ -123,6 +123,19 @@ shell.on('tick', function() {
       avatar[action].call(avatar);
     }
   });
+
+  // clear each of the tower levels
+  // TODO: only clear visible
+  tower.levels.forEach(function(level) {
+    level.clearRect(0, 0, tower.width, tower.levelHeight);
+  });
+
+  // redraw our avatar
+  avatar.sprite.draw(
+    tower.levels[avatar.y],
+    avatar.x,
+    0
+  );
 });
 
 // create the tower

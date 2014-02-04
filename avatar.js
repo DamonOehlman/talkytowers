@@ -12,9 +12,9 @@ var sprites = [
   require('spritey/sprite/goblin.json')
 ].map(spriteLoader);
 
-function Avatar(tower) {
+function Avatar() {
   if (! (this instanceof Avatar)) {
-    return new Avatar(tower);
+    return new Avatar();
   }
 
   // initialise the level
@@ -28,7 +28,6 @@ function Avatar(tower) {
   //
   this._timer = 0;
   this._ymove = 0;
-  this.tower = tower;
 
   this.frameIndex = 0;
 
@@ -36,14 +35,8 @@ function Avatar(tower) {
   this.sprite = sprites[this.spriteIdx];
   this.el = crel('div', { class: 'avatar' });
 
-  // create a canvas
-  this.el.appendChild(this.sprite.canvas);
-
   // initialise the name
   this.name = localStorage.username || window.prompt("What is your name?");
-
-  // add ourselves to the tower
-  tower.floors[this.y].appendChild(this.el);
 }
 
 util.inherits(Avatar, events.EventEmitter);
@@ -84,7 +77,6 @@ Object.defineProperty(proto, 'x', {
       }
 
       this._x = value;
-      transform(this.el, 'translate(' + value + 'px, 0px)');
       this._changed();
     }
   }
@@ -105,7 +97,6 @@ Object.defineProperty(proto, 'y', {
       }
 
       this._y = value;
-      this._changeLevel();
       this._changed();
     }
   }
@@ -140,12 +131,6 @@ proto.moveY = function(delta) {
   }, 50);
 }
 
-proto.remove = function() {
-  if (this.el.parentNode) {
-    this.el.parentNode.removeChild(this.el);
-  }
-};
-
 proto._changed = function() {
   var avatar = this;
 
@@ -153,11 +138,4 @@ proto._changed = function() {
   this._timer = setTimeout(function() {
     avatar.emit('change');
   }, 0);
-};
-
-proto._changeLevel = function() {
-  this.remove();
-  
-  // add ourselves to the tower
-  this.tower.floors[this.y].appendChild(this.el);
 };
