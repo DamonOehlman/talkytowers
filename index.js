@@ -47,9 +47,9 @@ shell.once('init', function() {
 
     var lastPos = {}
     avatar.on('change', function() {
-      if (avatar.x === lastPos.x && avatar.y === lastPos.y) return;
+      if (avatar.x === lastPos.x && avatar.level === lastPos.level) return;
       
-      if (avatar.y !== lastPos.y) {
+      if (avatar.level !== lastPos.level) {
         //We've moved floors.
         //Connect to the media stream associated with our new floor.
         console.log('changed floors');
@@ -62,7 +62,7 @@ shell.once('init', function() {
         // create join the room channel (cloning our signaller id)
         avatar.floorChannel = qc(SIGSRV, {
           id: signaller.id + ':video',
-          room: avatar.building.name+'_'+avatar.y
+          room: avatar.building.name+'_'+avatar.level
         });
 
         //Broadcast our media to our new friends
@@ -81,7 +81,7 @@ shell.once('init', function() {
 
       }
 
-      lastPos = {x: avatar.x, y: avatar.y};
+      lastPos = {x: avatar.x, level: avatar.level};
 
       //Send our new position out to the world
       dc.send(buildWireAvatar(avatar))
@@ -101,10 +101,10 @@ shell.once('init', function() {
         peers[id].x = data.x;
       }
 
-      if (typeof data.y != 'undefined') {
-        peers[id].y = data.y;
+      if (typeof data.level != 'undefined') {
+        peers[id].level = data.level;
       }
-      if (data.event == 'bell' && data.y === avatar.y) {
+      if (data.event == 'bell' && data.level === avatar.level) {
         document.getElementById('bellSound').play();
       }
     }
@@ -132,7 +132,7 @@ shell.on('tick', function() {
 
   // redraw our avatar
   avatar.sprite.draw(
-    tower.levels[avatar.y],
+    tower.levels[avatar.level],
     avatar.x,
     tower.levelHeight - 50
   );
@@ -145,7 +145,7 @@ var buildWireAvatar = function(avatar, type) {
   return JSON.stringify({
     event: event,
     x: avatar.x,
-    y: avatar.y,
+    level: avatar.level,
     name: avatar.name,
     sprite: avatar.spriteIdx
   });

@@ -1,5 +1,6 @@
 var crel = require('crel');
 var events = require('events');
+var throttle = require('cog/throttle');
 var transform = require('feature/css')('transform');
 var util = require('util');
 var Sprite = require('spritey/sprite');
@@ -20,7 +21,7 @@ function Avatar() {
   }
 
   // initialise the level
-  this._y = 0;
+  this._level = 0;
   this._x = 20;
 
   this.building = {
@@ -79,27 +80,25 @@ Object.defineProperty(proto, 'x', {
       }
 
       this._x = value;
-      this._changed();
     }
   }
 })
 
-Object.defineProperty(proto, 'y', {
+Object.defineProperty(proto, 'level', {
   get: function() {
-    return this._y;
+    return this._level;
   },
 
   set: function(value) {
-    if (value !== this._y) {
-      if (value > this._y) {
+    if (value !== this._level) {
+      if (value > this._level) {
         this.sprite.walk_up();
       }
       else {
         this.sprite.walk_down();
       }
 
-      this._y = value;
-      this._changed();
+      this._level = value;
     }
   }
 });
@@ -113,31 +112,18 @@ proto.moveRight = function() {
 };
 
 proto.moveUp = function() {
-  this.moveY(1);
+  this.moveLevel(1);
 };
 
 proto.moveDown = function() {
-  this.moveY(-1);
+  this.moveLevel(-1);
 };
 
 proto.moveX = function(delta) {
   this.x += delta;
-}
-
-proto.moveY = function(delta) {
-  var avatar = this;
-
-  clearTimeout(this._ymove);
-  this._ymove = setTimeout(function() {
-    avatar.y += delta;
-  }, 50);
-}
-
-proto._changed = function() {
-  var avatar = this;
-
-  clearTimeout(this._timer);
-  this._timer = setTimeout(function() {
-    avatar.emit('change');
-  }, 0);
 };
+
+proto.moveLevel = throttle(function(delta) {
+  console.log('moving level');
+  this.level += delta;
+}, 500, { trailing: false });
