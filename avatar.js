@@ -1,45 +1,20 @@
 var crel = require('crel');
 var events = require('events');
 var throttle = require('cog/throttle');
-var transform = require('feature/css')('transform');
 var util = require('util');
 var Sprite = require('spritey/sprite');
-var spriteLoader = require('spritey/loader')('node_modules/spritey/sprite/3', {
-  scale: 3,
-  stance: 'walk_right'
-});
+var sprites = require('./sprites');
 
-var sprites = [
-  require('spritey/sprite/firefox.json'),
-  require('spritey/sprite/goblin.json'),
-  require('spritey/sprite/sword1.json')
-].map(spriteLoader);
 
 function Avatar() {
   if (! (this instanceof Avatar)) {
     return new Avatar();
   }
 
-  // initialise the level
-  this._level = 0;
-  this._x = 20;
-
-  this.building = {
-    name: 'building1'
-  }
-
-  //
-  this._timer = 0;
-  this._ymove = 0;
-
-  this.frameIndex = 0;
-
-  this.spriteIdx = (Math.random() * sprites.length) | 0;
-  this.sprite = new Sprite([ sprites[0], sprites[2] ]);
-  this.el = crel('div', { class: 'avatar' });
-
-  // initialise the name
-  this.name = localStorage.username || window.prompt("What is your name?");
+  // initialise serializable members
+  this.level = 0;
+  this.x = 20;
+  this.action = 'move';
 }
 
 util.inherits(Avatar, events.EventEmitter);
