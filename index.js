@@ -22,9 +22,6 @@ function createAvatar(data) {
 }
 
 shell.once('init', function() {
-  // undo game-shells style override
-  document.body.style.overflow = 'auto';
-
   // join the signaller
   signaller = qc(SIGSRV, { ns: 'talkytower' });
 
@@ -154,5 +151,3 @@ var buildWireAvatar = function(avatar, type) {
 var sendBell = function() {
   dataChannel.send(buildWireAvatar(avatar, 'bell'));
 };
--
-window.addEventListener('load', tower.init);
