@@ -23,7 +23,14 @@ var canvas = tower.canvas = crel('canvas', {
 var context = tower.context = canvas.getContext('2d');
 
 function drawLevel(ctx, y) {
-  var bluedoor = assets.bluedoor;
+  var doors = [
+    assets.door6,
+    assets.door5,
+    assets.door3,
+    assets.door4
+  ];
+  var doorHeight = doors[0].height * 2;
+  var doorWidth = doors[0].width * 2;
 
   y -= 0.5;
 
@@ -31,13 +38,15 @@ function drawLevel(ctx, y) {
   ctx.lineTo(background.width, y);
   ctx.stroke();
 
-  ctx.drawImage(
-    assets.bluedoor,
-    50,
-    y - bluedoor.height * 2,
-    bluedoor.width * 2,
-    bluedoor.height * 2
-  );
+  doors.forEach(function(door, index) {
+    ctx.drawImage(
+      door,
+      50 + (index * 100),
+      y - doorHeight,
+      doorWidth,
+      doorHeight
+    );
+  });
 }
 
 // context.fillStyle = 'red';
