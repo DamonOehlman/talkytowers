@@ -32,11 +32,17 @@ header h1 {
 }
 
 .tower {
-	top: 14%;
-	height: 70%;
+	/*border: 1px solid black;*/
 	position: absolute;
-	width: 100%;
-	overflow-y: scroll;
+	top: 14%;
+	left: 1%;
+	height: 84%;
+	width: 49%;
+	/*overflow: hidden;*/
+}
+
+.tower canvas {
+	position: absolute;
 }
 
 .tower .level {

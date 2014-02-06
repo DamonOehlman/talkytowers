@@ -1,6 +1,7 @@
 var Sprite = require('spritey/sprite');
-var spriteLoader = require('spritey/loader')('node_modules/spritey/sprite/3', {
-  scale: 3,
+var SPRITE_SCALE = 2;
+var spriteLoader = require('spritey/loader')('node_modules/spritey/sprite/' + SPRITE_SCALE, {
+  scale: SPRITE_SCALE,
   stance: 'walk_right'
 });
 

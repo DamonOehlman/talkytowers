@@ -1,3 +1,4 @@
+var async = require('async');
 var Avatar = require('./avatar');
 var tower = require('./tower');
 var actions = Object.keys(Avatar.prototype);
@@ -9,6 +10,7 @@ var qsa = require('fdom/qsa');
 var signaller, dataChannel;
 var peers = {};
 var avatar = new Avatar();
+var assets = require('./assets');
 
 var SIGSRV = 'http://rtc.io/switchboard/';
 
@@ -21,9 +23,11 @@ localStream.render(qsa('.localvideo')[0]);
 function createAvatar(data) {
 }
 
-shell.once('init', function() {
+function run() {
   // join the signaller
   signaller = qc(SIGSRV, { ns: 'talkytower' });
+
+  tower.drawBackground();
 
   // create our avatar
   signaller.on('peer:announce', createAvatar);
@@ -34,9 +38,9 @@ shell.once('init', function() {
     }
   });
 
-  signaller.createDataChannel(avatar.building.name);
+  signaller.createDataChannel(tower.id);
 
-  signaller.on(avatar.building.name+':open', function(dc, id) {
+  signaller.on(tower.id + ':open', function(dc, id) {
 
     dc.send(buildWireAvatar(avatar, 'connect'));
 
@@ -106,7 +110,12 @@ shell.once('init', function() {
       }
     }
   });
-});
+}
+
+async.parallel([
+  assets.load,
+  shell.once.bind(shell, 'init')
+], run);
 
 shell.bind('moveLeft', 'left', 'A');
 shell.bind('moveRight', 'right', 'D');
@@ -121,17 +130,13 @@ shell.on('tick', function() {
     }
   });
 
-  // clear each of the tower levels
-  // TODO: only clear visible
-  tower.levels.forEach(function(level) {
-    level.clearRect(0, 0, tower.width, tower.levelHeight);
-  });
+  tower.context.clearRect(0, 0, tower.canvas.width, tower.canvas.height);
 
   // redraw our avatar
   avatar.sprite.draw(
-    tower.levels[avatar.level],
+    tower.context,
     avatar.x,
-    tower.levelHeight - 50
+    tower.canvas.height - 32 - (avatar.level * tower.levelHeight)
   );
 });
 

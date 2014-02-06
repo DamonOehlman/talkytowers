@@ -5,11 +5,13 @@ var util = require('util');
 var Sprite = require('spritey/sprite');
 var sprites = require('./sprites');
 
-
 function Avatar() {
   if (! (this instanceof Avatar)) {
     return new Avatar();
   }
+
+  // load the default sprite
+  this.sprite = new Sprite([ sprites.avatars[0], sprites.weapons[0] ]);
 
   // initialise serializable members
   this.level = 0;
