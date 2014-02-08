@@ -1,15 +1,12 @@
 var async = require('async');
 var list = [
   'wallpaper',
-  'door1',
-  'door2',
-  'door3',
-  'door4',
-  'door5',
-  'door6'
+  'doors'
 ];
 var wallpapers;
 var paperHeight = 16;
+var doorWidth = exports.doorWidth = 16;
+var doorHeight = exports.doorHeight = 32;
 
 function loadAsset(name, callback) {
   var img = exports[name] = new Image();
@@ -66,3 +63,27 @@ exports.getRandomWallpaper = function() {
 
   return wallpapers[(Math.random() * wallpapers.length) | 0];
 };
+
+exports.getRandomDoor = function() {
+  var canvas = document.createElement('canvas');
+  var context = canvas.getContext('2d');
+  var doorX = ((Math.random() * (exports.doors.width / doorWidth)) | 0) * doorWidth;
+  var doorY = ((Math.random() * (exports.doors.height / doorHeight)) | 0) * doorHeight;
+
+  canvas.width = doorWidth;
+  canvas.height = doorHeight;
+
+  context.drawImage(
+    exports.doors,
+    doorX,
+    doorY,
+    doorWidth,
+    doorHeight,
+    0,
+    0,
+    doorWidth,
+    doorHeight
+  );
+
+  return canvas;
+}

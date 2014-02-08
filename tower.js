@@ -5,6 +5,8 @@ var tower = module.exports = qsa('.tower')[0];
 var levels = tower.levels = [];
 var levelHeight = tower.levelHeight = 80;
 var floorHeight = 2;
+var doorHeight = assets.doorHeight * 2;
+var doorWidth = assets.doorWidth * 2;
 
 // calculate the tower bounds
 var bounds = tower.getBoundingClientRect();
@@ -24,15 +26,6 @@ var canvas = tower.canvas = crel('canvas', {
 var context = tower.context = canvas.getContext('2d');
 
 function drawLevel(ctx, y) {
-  var doors = [
-    assets.door6,
-    assets.door5,
-    assets.door3,
-    assets.door4
-  ];
-  var doorHeight = doors[0].height * 2;
-  var doorWidth = doors[0].width * 2;
-
   // offset by half pixel to get crisp drawing
   y -= 0.5;
 
@@ -40,15 +33,15 @@ function drawLevel(ctx, y) {
   ctx.fillStyle = ctx.createPattern(assets.getRandomWallpaper(), 'repeat-y');
   ctx.fillRect(0, y - levelHeight, canvas.width, levelHeight);
 
-  doors.forEach(function(door, index) {
+  for (var ii = 0; ii < 4; ii++) {
     ctx.drawImage(
-      door,
-      50 + (index * 100),
+      assets.getRandomDoor(),
+      50 + (ii * 100),
       y - doorHeight - (floorHeight + 1),
       doorWidth,
       doorHeight
     );
-  });
+  }
 
   // draw the bottom line
   ctx.fillStyle = 'rgb(200, 200, 200)';
