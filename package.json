@@ -23,9 +23,7 @@
     "url": "https://github.com/DamonOehlman/talkytowers/issues"
   },
   "homepage": "https://github.com/DamonOehlman/talkytowers",
-  "devDependencies": {
-    "browserify": "~3.24.10"
-  },
+  "devDependencies": {},
   "dependencies": {
     "rtc-quickconnect": "~0.11.2",
     "game-shell": "~0.1.4",
