@@ -34,6 +34,9 @@
     "feature": "~0.1.3",
     "spritey": "~0.3.0",
     "fdom": "~0.6.3",
-    "cog": "~0.5.1"
+    "cog": "~0.5.1",
+    "ooze": "0.0.16",
+    "actionmap": "0.0.0",
+    "rtc-bufferedchannel": "~0.4.0"
   }
 }
