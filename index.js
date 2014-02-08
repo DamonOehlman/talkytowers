@@ -25,7 +25,7 @@ function createAvatar(data) {
 
 function run() {
   // join the signaller
-  signaller = qc(SIGSRV, { ns: 'talkytower' });
+  signaller = qc(SIGSRV, { room: 'talkytower-' + tower.id });
 
   tower.drawBackground();
 
