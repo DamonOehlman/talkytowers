@@ -4,6 +4,7 @@ var qsa = require('fdom/qsa');
 var tower = module.exports = qsa('.tower')[0];
 var levels = tower.levels = [];
 var levelHeight = tower.levelHeight = 80;
+var floorHeight = 2;
 
 // calculate the tower bounds
 var bounds = tower.getBoundingClientRect();
@@ -32,21 +33,26 @@ function drawLevel(ctx, y) {
   var doorHeight = doors[0].height * 2;
   var doorWidth = doors[0].width * 2;
 
+  // offset by half pixel to get crisp drawing
   y -= 0.5;
 
-  ctx.moveTo(0, y);
-  ctx.lineTo(background.width, y);
-  ctx.stroke();
+  // fill the rect with the wallpaper
+  ctx.fillStyle = ctx.createPattern(assets.getRandomWallpaper(), 'repeat-y');
+  ctx.fillRect(0, y - levelHeight, canvas.width, levelHeight);
 
   doors.forEach(function(door, index) {
     ctx.drawImage(
       door,
       50 + (index * 100),
-      y - doorHeight,
+      y - doorHeight - (floorHeight + 1),
       doorWidth,
       doorHeight
     );
   });
+
+  // draw the bottom line
+  ctx.fillStyle = 'rgb(200, 200, 200)';
+  ctx.fillRect(0, y - floorHeight, canvas.width, floorHeight);
 }
 
 // context.fillStyle = 'red';

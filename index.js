@@ -66,12 +66,21 @@ function run() {
       peerAvatars[id] = avatar();
       peers.push(id);
       channels.push(channel);
+
+      // tell them our state
+      channel.send(new Uint16Array(localAvatar.get('state')));
     })
     .on('peer:update', function(data) {
       console.log('received update from peer: ', data);
     })
     .on('peer:leave', function(id) {
-      console.log('peer ' + id + ' has left');
+      var peerIdx = peers.indexOf(id);
+
+      if (peerIdx >= 0) {
+        console.log('peer ' + id + ' has left');
+        peers.splice(peerIdx, 1);
+        channels.splice(peerIdx, 1);
+      }
     });
 }
 
@@ -92,9 +101,7 @@ shell.on('tick', function() {
 
   actions.process(shell, [ localAvatar ]);
   tower.context.clearRect(0, 0, tower.canvas.width, tower.canvas.height);
-
-  // draw the local avatar to the tower
-  localAvatar.draw(tower);
+  tower.context.globalAlpha = 0.5;
 
   peers.forEach(function(id) {
     var av = peerAvatars[id];
@@ -103,4 +110,8 @@ shell.on('tick', function() {
       av.draw(tower);
     }
   });
+
+  // draw the local avatar to the tower
+  tower.context.globalAlpha = 1;
+  localAvatar.draw(tower);
 });
