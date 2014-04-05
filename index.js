@@ -1,116 +1,90 @@
 var async = require('async');
-var Avatar = require('./avatar');
+var avatar = require('./avatar');
 var tower = require('./tower');
-var actions = Object.keys(Avatar.prototype);
 var crel = require('crel');
 var shell = require('game-shell')();
 var qc = require('rtc-quickconnect');
+var bufferedchannel = require('rtc-bufferedchannel');
 var media = require('rtc-media');
 var qsa = require('fdom/qsa');
 var signaller, dataChannel;
-var peers = {};
-var avatar = new Avatar();
 var assets = require('./assets');
+var throttle = require('cog/throttle');
+
+var peers = [];
+var channels = [];
+var localAvatar = avatar();
+var peerAvatars = {};
 
 var SIGSRV = 'http://rtc.io/switchboard/';
+
+var actions = require('actionmap')({
+  moveLeft: function() {
+    this.set('x', this.get('x') - 1);
+  },
+
+  moveRight: function() {
+    this.set('x', this.get('x') + 1);
+  },
+
+  moveUp: throttle(function() {
+    this.set('level', this.get('level') + 1);
+  }, 500, { trailing: false }),
+
+  moveDown: throttle(function() {
+    this.set('level', this.get('level') - 1);
+  }, 500, { trailing: false })
+})
 
 // capture local media
 var localStream = media();
 
+function sendLocalState(state) {
+  var payload = new Uint16Array(state);
+
+  channels.forEach(function(channel) {
+    channel.send(payload);
+  });
+}
+
 // render the video
 localStream.render(qsa('.localvideo')[0]);
 
-function createAvatar(data) {
-}
-
 function run() {
-  // join the signaller
-  signaller = qc(SIGSRV, { ns: 'talkytower' });
-
   tower.drawBackground();
 
-  // create our avatar
-  signaller.on('peer:announce', createAvatar);
-  signaller.on('peer:leave', function(id) {
-    console.log('peer ' + id + ' left');
-    if (peers[id]) {
-      peers[id].remove();
-    }
-  });
+  qc(SIGSRV, { room: 'talkytower-' + tower.id })
+    .createDataChannel('movement', { reliable: false })
+    .on('movement:open', function(dc, id) {
+      var channel = bufferedchannel(dc);
 
-  signaller.createDataChannel(tower.id);
+      channel.on('data', function(state) {
+        peerAvatars[id].set('state', state);
+      });
 
-  signaller.on(tower.id + ':open', function(dc, id) {
+      // create a peer avatar for the peer
+      peerAvatars[id] = avatar();
+      peers.push(id);
+      channels.push(channel);
 
-    dc.send(buildWireAvatar(avatar, 'connect'));
+      // tell them our state
+      channel.send(new Uint16Array(localAvatar.get('state')));
+    })
+    .on('peer:update', function(data) {
+      console.log('received update from peer: ', data);
+    })
+    .on('peer:leave', function(id) {
+      var peerIdx = peers.indexOf(id);
 
-    dataChannel = dc;
-
-    var lastPos = {}
-    avatar.on('change', function() {
-      if (avatar.x === lastPos.x && avatar.level === lastPos.level) return;
-      
-      if (avatar.level !== lastPos.level) {
-        //We've moved floors.
-        //Connect to the media stream associated with our new floor.
-        console.log('changed floors');
-
-        // if we are already have a channel, leave that floor
-        if (avatar.floorChannel) {
-          avatar.floorChannel.leave();
-        }
-
-        // create join the room channel (cloning our signaller id)
-        avatar.floorChannel = qc(SIGSRV, {
-          id: signaller.id + ':video',
-          room: avatar.building.name+'_'+avatar.level
-        });
-
-        //Broadcast our media to our new friends
-        if (localStream.stream !== null) avatar.floorChannel.broadcast(localStream.stream);
-
-        //Look at our friend's faces
-        avatar.floorChannel.on('peer:connect', function(pc, id, data) {
-          var coreId = id.split(':')[0];
-
-          console.log('received peer:connect for media from: ' + id);
-
-          if (peers[coreId] && pc.getRemoteStreams().length > 0) {
-            media(pc.getRemoteStreams()[0]).render(peers[coreId].video);
-          }
-        });
-
+      if (peerIdx >= 0) {
+        console.log('peer ' + id + ' has left');
+        peers.splice(peerIdx, 1);
+        channels.splice(peerIdx, 1);
       }
-
-      lastPos = {x: avatar.x, level: avatar.level};
-
-      //Send our new position out to the world
-      dc.send(buildWireAvatar(avatar))
     });
-
-    dc.onmessage = function(evt) {
-      var data = JSON.parse(evt.data);
-      console.log('recieved event', data);
-      if (data.event == 'connect') {
-        // Totally draw an avatar on the screen now.
-        peers[id] = new Avatar();
-        peers[id].name = data.name;
-        peers[id].spriteIdx = data.sprite;
-      }
-
-      if (typeof data.x != 'undefined') {
-        peers[id].x = data.x;
-      }
-
-      if (typeof data.level != 'undefined') {
-        peers[id].level = data.level;
-      }
-      if (data.event == 'bell' && data.level === avatar.level) {
-        document.getElementById('bellSound').play();
-      }
-    }
-  });
 }
+
+localAvatar.on('state', throttle(sendLocalState, 1000 / 25));
 
 async.parallel([
   assets.load,
@@ -124,35 +98,20 @@ shell.bind('moveDown', 'down', 'S');
 
 shell.on('tick', function() {
   if (shell.wasDown('B')) sendBell();
-  actions.forEach(function(action) {
-    if (shell.wasDown(action)) {
-      avatar[action].call(avatar);
+
+  actions.process(shell, [ localAvatar ]);
+  tower.context.clearRect(0, 0, tower.canvas.width, tower.canvas.height);
+  tower.context.globalAlpha = 0.5;
+
+  peers.forEach(function(id) {
+    var av = peerAvatars[id];
+
+    if (av) {
+      av.draw(tower);
     }
   });
 
-  tower.context.clearRect(0, 0, tower.canvas.width, tower.canvas.height);
-
-  // redraw our avatar
-  avatar.sprite.draw(
-    tower.context,
-    avatar.x,
-    tower.canvas.height - 32 - (avatar.level * tower.levelHeight)
-  );
+  // draw the local avatar to the tower
+  tower.context.globalAlpha = 1;
+  localAvatar.draw(tower);
 });
-
-// create the tower
-
-var buildWireAvatar = function(avatar, type) {
-  var event = type || 'move'
-  return JSON.stringify({
-    event: event,
-    x: avatar.x,
-    level: avatar.level,
-    name: avatar.name,
-    sprite: avatar.spriteIdx
-  });
-};
-
-var sendBell = function() {
-  dataChannel.send(buildWireAvatar(avatar, 'bell'));
-};

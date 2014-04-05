@@ -1,106 +1,65 @@
-var crel = require('crel');
-var events = require('events');
-var throttle = require('cog/throttle');
-var util = require('util');
 var Sprite = require('spritey/sprite');
 var sprites = require('./sprites');
+var Ooze = require('ooze');
 
-function Avatar() {
-  if (! (this instanceof Avatar)) {
-    return new Avatar();
+module.exports = function() {
+  var data = {
+    level: 0,
+    x: 20,
+    sprite: 0
+  };
+
+  var avatar = new Ooze(data);
+  var sprite = avatar.sprite = sprites.avatars[avatar.get('sprite')].clone();
+  var lastX = avatar.get('x');
+  var lastLevel = avatar.get('level');
+
+  function updateState(x, level) {
+    avatar.set('state', [ x, level ]);
   }
 
-  // load the default sprite
-  this.sprite = new Sprite([ sprites.avatars[0], sprites.weapons[0] ]);
+  avatar.on('state', function(state) {
+    avatar.set('x', state[0] );
+    avatar.set('level', state[1] );
+  });
 
-  // initialise serializable members
-  this.level = 0;
-  this.x = 20;
-  this.action = 'move';
-}
-
-util.inherits(Avatar, events.EventEmitter);
-module.exports = Avatar;
-
-var proto = Avatar.prototype;
-
-Object.defineProperty(proto, 'name', {
-  get: function() {
-    return this._name;
-  },
-
-  set: function(value) {
-    if (value !== this._name) {
-      localStorage.username = this._name;
-
-      if (this.canvas) {
-        this.canvas.setAttribute('data-name', value);
-      }
+  avatar.on('x', function(x) {
+    if (lastX < x) {
+      sprite.walk_right();
     }
-  }
-});
-
-Object.defineProperty(proto, 'x', {
-  get: function() {
-    return this._x;
-  },
-
-  set: function(value) {
-    if (value !== this._x) {
-      var delta = value - this._x;
-
-      if (delta > 0) {
-        this.sprite.walk_right();
-      }
-      else {
-        this.sprite.walk_left();
-      }
-
-      this._x = value;
+    else if (lastX > x) {
+      sprite.walk_left();
     }
-  }
-})
 
-Object.defineProperty(proto, 'level', {
-  get: function() {
-    return this._level;
-  },
+    lastX = x;
+    updateState(x, avatar.get('level'));
+  });
 
-  set: function(value) {
-    if (value !== this._level) {
-      if (value > this._level) {
-        this.sprite.walk_up();
-      }
-      else {
-        this.sprite.walk_down();
-      }
-
-      this._level = value;
+  avatar.on('level', function(level) {
+    if (lastLevel < level) {
+      sprite.walk_up();
     }
+    else if (lastLevel > level) {
+      sprite.walk_down();
+    }
+
+    lastLevel = level;
+    updateState(avatar.get('x'), level);
+  });
+
+  // handle sprite change
+  avatar.on('sprite', function(idx) {
+    sprite = avatar.sprite = sprites.avatars[idx].clone();
+  });
+
+  avatar.draw = function(tower) {
+    // redraw our avatar
+    sprite.draw(
+      tower.context,
+      lastX,
+      tower.canvas.height - (lastLevel * tower.levelHeight)
+    );
   }
-});
 
-proto.moveLeft = function() {
-  this.moveX(-1);
+  return avatar;
 };
-
-proto.moveRight = function() {
-  this.moveX(1);
-};
-
-proto.moveUp = function() {
-  this.moveLevel(1);
-};
-
-proto.moveDown = function() {
-  this.moveLevel(-1);
-};
-
-proto.moveX = function(delta) {
-  this.x += delta;
-};
-
-proto.moveLevel = throttle(function(delta) {
-  console.log('moving level');
-  this.level += delta;
-}, 500, { trailing: false });
