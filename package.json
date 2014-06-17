@@ -35,8 +35,8 @@
     "spritey": "~0.3",
     "fdom": "~0.8",
     "cog": "~0.5",
-    "ooze": "0.0.16",
+    "ooze": "0.0.24",
     "actionmap": "0.0.0",
-    "rtc-bufferedchannel": "~0.4"
+    "rtc-bufferedchannel": "~0.5"
   }
 }
