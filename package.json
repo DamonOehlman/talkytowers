@@ -28,7 +28,7 @@
     "rtc-quickconnect": "^1",
     "game-shell": "^1",
     "rtc-media": "^1",
-    "async": "~0.9",
+    "async": "~3.2.2",
     "formatter": "~0.4",
     "crel": "^1",
     "feature": "~0.1",
