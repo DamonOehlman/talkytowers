@@ -25,7 +25,7 @@
   "homepage": "https://github.com/DamonOehlman/talkytowers",
   "devDependencies": {},
   "dependencies": {
-    "rtc-quickconnect": "^1",
+    "rtc-quickconnect": "^2.1.0",
     "game-shell": "^1",
     "rtc-media": "^1",
     "async": "~0.9",
